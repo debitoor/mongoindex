@@ -1,0 +1,40 @@
+{
+  "name": "mongoindex",
+  "version": "0.0.1",
+  "description": "Generare ensureIndex statements based on indexes read from a MongoDB database. Use it for copying indexes from one db to another. From production to development/staging for example",
+  "main": "index.js",
+  "scripts": {
+	  "test": "node ./test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/e-conomic/mongoindex.git"
+  },
+  "bin": {
+    "mongoindex": "./index.js"
+  },
+  "keywords": [
+    "index",
+    "mongo",
+    "mongodb",
+    "ensureindex",
+    "copy",
+    "script",
+    "scripting",
+    "nodejs"
+  ],
+  "author": "E-conomic",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/e-conomic/mongoindex/issues"
+  },
+  "homepage": "https://github.com/e-conomic/mongoindex",
+  "dependencies": {
+    "mongodb": ""
+  },
+  "devDependencies": {
+    "mocha-jshint": "0.0.7",
+    "mocha": "~1.17.1",
+    "chai": "~1.9.0"
+  }
+}
