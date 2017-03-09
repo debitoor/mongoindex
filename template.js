@@ -1,3 +1,5 @@
-module.exports = function(db){
+module.exports = (db) => {
+	const createIndex = (...args) => db.createIndex(...args);
+
 //ENSURE_INDEXES//
 };

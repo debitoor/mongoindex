@@ -114,7 +114,7 @@ describe('using test database', function () {
 			});
 
 			tests.forEach((test) => {
-				describe('ensuring index: ' + JSON.stringify(test), function () {
+				describe('ensuring index: ' + JSON.stringify(test), () => {
 
 					before((done) =>
 						db.collection(test.collectionName).createIndex(test.spec, test.options, done)
@@ -128,6 +128,12 @@ describe('using test database', function () {
 						let indexes;
 
 						beforeGetIndexes((_indexes) => indexes = _indexes);
+
+						before(() => {
+							indexes.sort((a, b) => {
+								return a.collectionName.localeCompare(b.collectionName);
+							});
+						});
 
 						it('returns the exact same result as used in ensureIndex', () =>
 							expect(indexes[0]).to.eql(test)
