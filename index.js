@@ -30,6 +30,6 @@ getIndexes(process.argv[2], function (err, indexes) {
 
 
 function printUsage() {
-	console.log("USAGE: mongoindex [mongo_connection_string] [ensure_index_output_file]");
+	console.log('USAGE: mongoindex [mongo_connection_string] [ensure_index_output_file]');
 	process.exit();
 }

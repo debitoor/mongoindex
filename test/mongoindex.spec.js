@@ -1,51 +1,32 @@
-var mongodb = require('mongodb');
-var getIndexes = require('../lib/getIndexes');
+const MongoClient = require('mongodb').MongoClient;
+const getIndexes = require('../lib/getIndexes');
 
-var connectionString = 'mongodb://127.0.0.1/mongoindex_test';
+const connectionString = 'mongodb://127.0.0.1/mongoindex_test';
 
 describe('using test database', function () {
-	var db;
-	before(function (done) {
-		return (new mongodb.MongoClient()).connect(connectionString, function (err, dbReturned) {
-			if (err) {
-				done(err);
-			}
-			db = dbReturned;
-			db.dropDatabase(done);
-		});
-	});
+	let db;
 
-	after(function (done) {
-		db.dropDatabase(done);
-	});
+	before((done) =>
+		(new MongoClient()).connect(connectionString)
+			.then((_db) => db = _db)
+			.then((db) => db.dropDatabase(done))
+			.catch(done)
+	);
 
-	describe('adding id_test collection', function () {
-		before(function (done) {
-			db.createCollection('id_test', done);
-		});
+	after((done) => db.dropDatabase(done));
 
-		describe('getting indexes', function () {
-			var indexes;
+	describe('adding id_test collection', () => {
 
-			get();
+		before((done) => db.createCollection('id_test', done));
 
-			function get() {
-				before(function (done) {
-					return getIndexes(connectionString, function (err, indexesReturned) {
-						if (err) {
-							return done(err);
-						}
-						indexes = indexesReturned;
-						return done();
-					});
-				});
-			}
+		describe('getting indexes', () => {
+			let indexes;
 
-			it('should not get the _id index', function () {
-				expect(indexes).to.eql([]);
-			});
+			beforeGetIndexes((_indexes) => indexes = _indexes);
 
-			var tests = [
+			it('should not get the _id index', () => expect(indexes).to.eql([]));
+
+			const tests = [
 				{
 					spec: {
 						test: 1
@@ -68,7 +49,7 @@ describe('using test database', function () {
 						one: -1,
 						two: 1
 					},
-					options:{
+					options: {
 						unique: true
 					}
 				},
@@ -77,9 +58,8 @@ describe('using test database', function () {
 						one: -1,
 						two: 1
 					},
-					options:{
-						unique: true,
-						dropDups: true
+					options: {
+						unique: true
 					}
 				},
 				{
@@ -87,9 +67,8 @@ describe('using test database', function () {
 						one: -1,
 						two: 1
 					},
-					options:{
+					options: {
 						unique: true,
-						dropDups: true,
 						min: 10
 					}
 				},
@@ -98,9 +77,8 @@ describe('using test database', function () {
 						one: -1,
 						two: 1
 					},
-					options:{
+					options: {
 						unique: true,
-						dropDups: true,
 						min: 10,
 						max: 11
 					}
@@ -110,9 +88,8 @@ describe('using test database', function () {
 						one: -1,
 						two: 1
 					},
-					options:{
+					options: {
 						unique: true,
-						dropDups: true,
 						min: 10,
 						max: 11,
 						sparse: true
@@ -123,45 +100,58 @@ describe('using test database', function () {
 						one: -1,
 						two: 1
 					},
-					options:{
+					options: {
 						unique: true,
-						dropDups: true,
 						expireAfterSeconds: 10
 					}
 				}
-			];
+			].map((test, index) => {
+				test.options = test.options || {};
+				test.options.name = test.options.name || 'index_test_' + index;
+				test.options.v = test.options.v || 1;
+				test.collectionName = 'test_' + index;
+				return test;
+			});
 
-			tests = tests
-				.map(function (test, index) {
-					test.options = test.options || {};
-					test.options.name = test.options.name || 'index_test_' + index;
-					test.options.v = test.options.v || 1;
-					test.collectionName = 'test_' + index;
-					return test;
-				});
-
-			tests.forEach(function(test){
+			tests.forEach((test) => {
 				describe('ensuring index: ' + JSON.stringify(test), function () {
 
-					before(function (done) {
-						db.ensureIndex(test.collectionName, test.spec, test.options, done);
+					before((done) =>
+						db.collection(test.collectionName).createIndex(test.spec, test.options, done)
+					);
+
+					after((done) =>
+						db.collection(test.collectionName).dropIndex(test.options.name, done)
+					);
+
+					describe('getting indexes', () => {
+						let indexes;
+
+						beforeGetIndexes((_indexes) => indexes = _indexes);
+
+						it('returns the exact same result as used in ensureIndex', () =>
+							expect(indexes[0]).to.eql(test)
+						);
 					});
-
-					after(function (done) {
-						db.dropIndex(test.collectionName, test.options.name, done);
-					});
-
-					describe('getting indexes', function () {
-						get();
-
-						it('returns the exact same result as used in ensureIndex', function(){
-							expect(indexes[0]).to.eql(test);
-						});
-					});
-
 				});
-
 			});
 		});
 	});
 });
+
+
+function beforeGetIndexes(callback) {
+	let indexes;
+
+	before((done) =>
+		getIndexes(connectionString, function (err, indexesReturned) {
+			if (err) {
+				return done(err);
+			}
+			indexes = indexesReturned;
+			return done();
+		})
+	);
+
+	before(() => callback(indexes));
+}

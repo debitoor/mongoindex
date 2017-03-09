@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 //run Mocha
-var realProcessExit = process.exit;
+const realProcessExit = process.exit;
 process.exit = function (code) {
 	setTimeout(realProcessExit.bind(process, code), 2000);
 };
