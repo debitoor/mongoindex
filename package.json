@@ -31,7 +31,7 @@
   "homepage": "https://github.com/e-conomic/mongoindex",
   "dependencies": {
     "deep-equal": "1.0.1",
-    "mongodb": "2.2.24"
+    "mongodb": "3.6.2"
   },
   "devDependencies": {
     "@debitoor/eslint-config-debitoor": "1.2.0",
