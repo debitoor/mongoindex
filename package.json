@@ -36,7 +36,7 @@
   "devDependencies": {
     "@debitoor/eslint-config-debitoor": "1.2.0",
     "chai": "1.9.2",
-    "eslint": "3.17.1",
+    "eslint": "7.12.1",
     "mocha": "1.17.1",
     "mocha-eslint": "3.0.1"
   }
